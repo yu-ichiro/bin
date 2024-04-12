@@ -19,7 +19,7 @@ fi
 # move to MYBIN_PATH
 cd $MYBIN_PATH
 
-files=$(find src/source -type f | grep -E '^src/source/'"$(bin/mybin-platform -s | sed -E 's/([^:]+)/\(\1|_any\)/g' | tr ':' '/')" | sort)
+files=$(find src/source -type f,l | grep -E '^src/source/'"$(bin/mybin-platform -s | sed -E 's/([^:]+)/\(\1|_any\)/g' | tr ':' '/')"'.*\.sh$' | sort)
 
 for file in $files; do
     echo "# load $(pwd)/$file"
