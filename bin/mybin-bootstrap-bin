@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# save the original PWD
+__PWD__=$PWD
+# save the path of directory which this script is included
+__DIR__="$(
+  src="${BASH_SOURCE[0]}"
+  while [ -h "$src" ]; do
+    dir="$(cd -P "$(dirname "$src")" && pwd)"
+    src="$(readlink "$src")"
+    [[ $src != /* ]] && src="$dir/$src"
+  done
+  printf %s "$(cd -P "$(dirname "$src")" && pwd)"
+)"
+# move to __DIR__ (/bin)
+cd -P $__DIR__
+
+# move to repo root (/)
+cd ../
+
+files=$(find src/bin -type f | grep -E '^src/bin/'"$(bin/mybin-platform | sed -E 's/([^:]+)/\(\1|_any\)/g' | tr ':' '/')" | sort)
+
+skip=$(cat bin/.gitignore | grep -E '^!' | sed -E 's/^!/bin\//')
+links=$(find bin/ -type f | grep -v -E '^('"$(echo -n "$skip" | tr '\n' '|')"')')
+
+if [ ! -z "$links" ]; then
+    rm -rf $links
+fi
+
+for file in $files; do
+    ln -sf $(pwd)/$file bin/$(basename $file)
+done

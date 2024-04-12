@@ -1,0 +1,5 @@
+*
+!.gitignore
+!mybin-platform
+!mybin-bootstrap-bin
+!mybin-bootstrap-source

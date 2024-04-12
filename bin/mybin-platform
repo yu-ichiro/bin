@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+lower='tr [A-Z] [a-z]'
+
+arch=$(uname -m | $lower)
+kernel=$(uname -s | $lower)
+version=$(uname -rv | $lower)
+shell=$(basename $SHELL)
+
+os=""
+
+case $version in
+    *ubuntu*) os="ubuntu";;
+    *xnu*) os="apple";;
+    *wsl*) os="wsl";;
+    *) os="unknown";;
+esac
+
+if [ "$1" == "-s" ]; then
+    echo ${arch}:${kernel}:${os}:${shell}
+else
+    echo ${arch}:${kernel}:${os}
+fi
