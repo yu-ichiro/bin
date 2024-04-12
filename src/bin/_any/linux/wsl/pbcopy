@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# pbcopy wsl version
+
+if ! type nkf >/dev/null 2>&1; then
+    echo $0 needs nkf to work >&2
+    exit 1
+fi
+nkf -cs | clip.exe
