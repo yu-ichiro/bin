@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# gpgdump - list private keys' keyids and keygrips of a keychain together
+
+gpg -K --with-colons $1 | \
+grep -E '(sec|ssb|grp)' | \
+sed -E 's/^s/;s/' | \
+tr -d $'\n' | \
+tr -d $'\r' | \
+sed -E 's/;/\n/g' | \
+grep -v -E '^$' | \
+cut -d: -f1,5,12,15,28,30 | \
+sed 's/::/:/g'
