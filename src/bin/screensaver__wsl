@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# starts screensaver
+
+$(powershell.exe -command "(Get-ItemProperty -Path 'HKCU:\\Control Panel\\Desktop' -Name SCRNSAVE.EXE).'SCRNSAVE.EXE' | Write-Host -NoNewline" | sed -E 's/\\/\\\\/g' | xargs wslpath -a) -s
