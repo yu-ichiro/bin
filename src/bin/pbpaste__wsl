@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-# pbpaste wsl version
-
-if ! type nkf >/dev/null 2>&1; then
-    echo $0 needs nkf to work >&2
-    exit 1
-fi
-powershell.exe -command "Get-Clipboard -Raw | Write-Host -NoNewline" | nkf -wd
