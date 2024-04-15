@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+api='https://www.toptal.com/developers/javascript-minifier/api/raw'
+
+encodeURIComponent | \
+prepend 'input=' | \
+curl "$api" -s -X POST -d @- | \
+pyliner -i 'for chunk in stdin.buffer: stdout.buffer.write(chunk.replace(b"\t", b"\\t").replace(b"\n", b"\\n"))'
+
