@@ -4,20 +4,28 @@ lower='tr [A-Z] [a-z]'
 
 arch=$(uname -m | $lower)
 kernel=$(uname -s | $lower)
-version=$(uname -rv | $lower)
-shell=$(basename $SHELL)
+_version=$(uname -rv | $lower)
+os="unknown"
+like="unknown"
+distro="unknown"
+shell=$(basename $SHELL | $lower)
 
-os=""
-
-case $version in
-    *ubuntu*) os="ubuntu";;
-    *xnu*) os="apple";;
-    *wsl*) os="wsl";;
-    *) os="unknown";;
+case $kernel in
+    *darwin*) os="macos";;
+    *linux*)
+        case $_version in
+            *wsl*) kernel="${kernel}#wsl"
+        esac
+        case $(uname -o | $lower) in
+            *gnu*) os="gnu";;
+        esac
+        release=$([ -e /etc/os-release ] && cat /etc/os-release) 
+        case $(echo $release | grep ID_LIKE=) in
+            *debian*) like="debian";;
+        esac
+        case $(echo $release | grep ID=) in
+            *ubuntu*) distro="ubuntu";;
+        esac
 esac
 
-if [ "$1" == "-s" ]; then
-    echo ${arch}:${kernel}:${os}:${shell}
-else
-    echo ${arch}:${kernel}:${os}
-fi
+echo ${arch}:${kernel}:${os}:${like}:${distro}:${shell}

@@ -19,8 +19,22 @@ fi
 
 # move to $MYBIN_PATH
 cd $MYBIN_PATH
+platform=$(bin/mybin-platform)
 
-files=$(find src/bin -type f,l | grep -E '^src/bin/'"$(bin/mybin-platform | sed -E 's/([^:]+)/\(\1|_any\)/g' | tr ':' '/')" | sort)
+files=$(find src/bin -type f,l | sort)
+filtered=""
+
+mark="__"
+sep="-"
+OIFS=$IFS
+IFS=$'\n'
+for file in $files; do
+    filter=$(echo $file | xargs basename | grep $mark | sed -E "s/^.+$mark([^\.]+).*$/\1/" | sed -E "s/([^$sep]+)($sep)?/| grep '\1'/g")
+    check="echo "'"'"\$platform"'"'" $filter"
+    if [ "$(eval $check)" != "" ]; then
+        filtered="${filtered}${file}"$'\n'
+    fi
+done
 
 skip=$(cat bin/.gitignore | grep -E '^!' | sed -E 's/^!/bin\//')
 links=$(find bin/ -type f,l | grep -v -E '^('"$(echo -n "$skip" | tr '\n' '|')"')')
@@ -30,5 +44,5 @@ if [ ! -z "$links" ]; then
 fi
 
 for file in $files; do
-    ln -sf $(pwd)/$file bin/$(basename $file)
+    ln -sf $(pwd)/$file bin/$(basename $file | sed -E 's/__.+//')
 done
