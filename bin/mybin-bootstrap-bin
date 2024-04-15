@@ -43,6 +43,6 @@ if [ ! -z "$links" ]; then
     rm -rf $links
 fi
 
-for file in $files; do
+for file in $filtered; do
     ln -sf $(pwd)/$file bin/$(basename $file | sed -E 's/__.+//')
 done
