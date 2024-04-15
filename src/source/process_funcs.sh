@@ -2,11 +2,11 @@
 # define functions to display informations about a process
 function ppid() {
     pid=${1:-$$}
-    ps -p -o ppid= | sed -E 's/\s//g'
+    ps -p $pid -o ppid= | sed -E 's/\s//g'
 }
 
 function pcomm() {
-    pid ${1:-$$}
+    pid=${1:-$$}
     ps -p $pid -o comm=
 }
 
