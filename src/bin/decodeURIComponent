@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+pyliner -i -h "import urllib.parse as u" 'stdout.write(u.unquote(stdin.read()))'
