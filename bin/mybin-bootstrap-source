@@ -21,7 +21,7 @@ cd $MYBIN_PATH
 
 platform=$(bin/mybin-platform)
 
-files=$(find src/source -type f,l | sort) 
+files=$(find src/source -type f,l | grep -v .gitkeep | sort) 
 filtered=""
 
 mark="__"
