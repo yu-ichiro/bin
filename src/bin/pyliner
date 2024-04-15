@@ -1,24 +1,58 @@
 #!/usr/bin/env bash
 
 file=$(mktemp)
+io=false
+dry=false
 
-while [[ "$1" == "-h" || "$1" == "--header" ]]; do
-    shift
-    header=$1
-    shift
-    echo "$header" >> $file
+while true; do
+    case "$1" in
+        "-h" | "--header" )
+            shift
+            header="$1"
+            shift
+            echo "$header" >> $file
+            ;;
+        "-i" | "--io" )
+            shift
+            io=true
+            ;;
+        "-n" | "--dry-run" )
+            shift
+            dry=true
+            ;;
+        *)
+            break
+            ;;
+    esac
 done
 
-script=$(echo "$@")
-script=${script:-line}
 
+script=$(echo -n "$@")
 
-cat << EOF >> $file
+cat <<EOF >> $file
 import sys, os, shutil, re
 
+EOF
+
+if $io; then
+    script=
+    cat << EOF >> $file
+stdin, stdout = sys.stdin, sys.stdout
+
+${script:-"for chunk in stdin.buffer: stdout.buffer.write(chunk)"}
+EOF
+else
+    script=${script:-line}
+    cat << EOF >> $file
 for i, line in enumerate(sys.stdin):
     line, eol, *__unused = *re.split("(\r?\n)", line), ''
-    print($script, end=eol)
+    print(${script:-line}, end=eol)
 EOF
-python $file
+fi
+
+if $dry; then
+    cat $file
+else
+    python $file
+fi
 rm $file
