@@ -35,14 +35,12 @@ import sys, os, shutil, re
 EOF
 
 if $io; then
-    script=
     cat << EOF >> $file
 stdin, stdout = sys.stdin, sys.stdout
 
 ${script:-"for chunk in stdin.buffer: stdout.buffer.write(chunk)"}
 EOF
 else
-    script=${script:-line}
     cat << EOF >> $file
 for i, line in enumerate(sys.stdin):
     line, eol, *__unused = *re.split("(\r?\n)", line), ''
