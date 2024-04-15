@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # mac-like `open` command for WSL
-target="${1:-'.'}"
-if [[ "$target" != http*://* ]]; then
-    target="$(wslpath -aw $target)"
-fi
-powershell.exe -command "start $target"
+target="${1:-.}"
+shift
+set $target "$@"
+wslview "$@"
