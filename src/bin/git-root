@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# prints the top-level for a git repository
+git rev-parse --show-toplevel

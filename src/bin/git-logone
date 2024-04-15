@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# display logs in oneline, configured
+git log --color=always --pretty=%Cgreen%h%Creset,%an,%ai,%s "$@" | pyliner "'{:17s} {:18s} {:25s} {}'.format(*map(lambda c: c[1][:(17,18,25,shutil.get_terminal_size().columns-56)[c[0]]], enumerate(line.split(',', 3))))"
+

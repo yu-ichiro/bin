@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# execute git commands to multiple repos given from stdin
+xargs -I{} $SHELL -c "echo {}; cd {}; git $(echo "$@")"
+

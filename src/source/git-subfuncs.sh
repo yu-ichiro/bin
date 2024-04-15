@@ -12,11 +12,6 @@ function git() {
     fi
 }
 
-# define `git-root` function that prints the top-level for a git repository
-function git-root() {
-    git rev-parse --show-toplevel
-}
-
 # define `git-cd` function that cds to a directory relative to `git-root`
 function git-cd() {
     local gitroot
@@ -28,9 +23,3 @@ function git-cd() {
         cd $gitroot
     fi
 }
-
-# define `git-bulk` function that executes git commands to multiple repos given from stdin
-function git-bulk() {
-    xargs -I{} $SHELL -c "echo {}; cd {}; git $(echo "$@")"
-}
-
