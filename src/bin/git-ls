@@ -4,6 +4,7 @@ top_level=$(git root)
 ( # start subshell
 cd $top_level
 files=$(git ls-files)
+ls_command=${LS_COMMAND:-ls}
 
 # check if fd 1 (stdin) is opened (=is a tty)
 if [ -t 1 ]; then
@@ -17,10 +18,13 @@ git_color=${git_color:-"true"}
 git_color_option=$([ "$git_color" == "true" ] && $is_tty && echo "-c color.ui=always")
 git_status="$(git $git_color_option status -s)"
 
-$is_tty && ls_color_option="--color"
+$is_tty && ls_color_option="--color=always"
+
+ls_output="$($ls_command $ls_color_option "$@" $files)"
 
 for file in $files; do
-    ls $ls_color_option "$@" $file | tr -d '\n'
+    line_num=$(echo "$ls_output" | strip-ansi | grep -n $file | sed -E 's/:.*//g')
+    echo "$ls_output" | head -n $line_num | tail -1 | tr -d '\n'
     echo -n " "
     echo "$git_status" | grep $file | tr -d '\n'
     git_status=$(echo "$git_status" | grep -v $file)
