@@ -1,3 +1,8 @@
 #!/usr/bin/env bash
 # force emacs to boot in cli
-emacs -nw
+_tty=$(tty 2>/dev/null)
+if [ "$_tty" != "" ]; then
+    emacs --terminal $_tty "$@"
+else
+    emacs --no-windows "$@"
+fi
