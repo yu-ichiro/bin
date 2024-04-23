@@ -11,7 +11,14 @@ function load-winpath() {
     _debug_file=${_debug_file:-/dev/null}
     OIFS=$IFS
     IFS=$'\n'
-    export PATH=$PATH:
+    # test last letter if it's a colon
+    if [ "${PATH: -1}" != ":" ]; then
+        export PATH=$PATH:
+        colon_added=true
+    else
+        colon_added=false
+    fi
+
     for _path in $(get-winpath); do
         echo -n "$_path: " > $_debug_file
         case $PATH in
@@ -31,7 +38,11 @@ function load-winpath() {
         echo $(echo $PATH | tr ':' '\n' | wc -l) $PATH > $_debug_file
         echo ---- > $_debug_file
     done
-    export PATH=${PATH%:}
+
+    if $colon_added; then
+        export PATH=${PATH%:}
+    fi
+
     IFS=$OIFS
 }
 
