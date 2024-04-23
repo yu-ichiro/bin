@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# executes tig as git's tui
+tig "$@"
