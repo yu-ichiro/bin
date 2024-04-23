@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# open remote url in browser
+remote=${1:-$(git remote | head -1)}
+open $(git remote get-url "$remote")
