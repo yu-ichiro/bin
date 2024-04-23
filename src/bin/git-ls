@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+top_level=$(git root)
+( # start subshell
+cd $top_level
+files=$(git ls-files)
+
+# check if fd 1 (stdin) is opened (=is a tty)
+if [ -t 1 ]; then
+    is_tty=true
+else
+    is_tty=false
+fi
+
+git_color=$(git config color.ui)
+git_color=${git_color:-"true"}
+git_color_option=$([ "$git_color" == "true" ] && $is_tty && echo "-c color.ui=always")
+git_status="$(git $git_color_option status -s)"
+
+$is_tty && ls_color_option="--color"
+
+for file in $files; do
+    ls $ls_color_option "$@" $file | tr -d '\n'
+    echo -n " "
+    echo "$git_status" | grep $file | tr -d '\n'
+    git_status=$(echo "$git_status" | grep -v $file)
+    echo
+done
+if [ "$git_status" != "" ]; then
+    echo $'\n'"other files:"
+    echo "$git_status"
+fi
+) # end subshell
