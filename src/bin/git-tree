@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# show a pretty git tree log
+git log --pretty --oneline --graph "$@"
