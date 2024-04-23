@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# strip ansi escape-sequence from text
+sed -E 's/\x1B\[([0-9]{1,2}(;[0-9]{1,2})*)?m//g' "$@"
