@@ -45,6 +45,3 @@ function load-winpath() {
 
     IFS=$OIFS
 }
-
-# explicitly load Windows PATH
-load-winpath
