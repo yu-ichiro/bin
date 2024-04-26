@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Command to make a script file
+
+shebang='#!/usr/bin/env bash'
+edit_after=false
+while [ -n "$1" ]; do
+    case "$1" in
+	-s|--shebang)
+	    shebang="$2"
+	    shift 2
+	    ;;
+	-e|--edit)
+	    edit_after=true
+	    shift 1
+	    ;;
+	*)
+	    args+=("$1")
+	    shift 1
+	    ;;
+    esac
+done
+
+for file in "$args"; do
+    touch "$file"
+    chmod +x "$file"
+    echo "$shebang" >> $file
+done
+$edit_after && edit "$args"

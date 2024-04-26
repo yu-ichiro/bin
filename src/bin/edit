@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# command to edit file with $EDITOR
+
+editors=($EDITOR "emacs" "vim" "vi" "nano")
+for editor in $editors; do
+    if command_exists $editor; then
+       $editor "$@"
+       exit
+    fi
+done
