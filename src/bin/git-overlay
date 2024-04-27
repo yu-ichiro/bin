@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# instead of cloning into a sub-directory, make the current directory a git repository and pull the remote commits
+
+branch=main
+remote=origin
+while [ -n "$1" ]; do
+    case $1 in
+	-b|--branch)
+	    shift
+	    branch=$1
+	    shift
+	    ;;
+	-r|--remote)
+	    shift
+	    remote=$1
+	    shift
+	    ;;
+	*)
+	    args+=("$1")
+	    shift
+	    ;;
+    esac
+done
+
+git init
+git remote add $remote "${args[@]}"
+git fetch --all
+git checkout $branch -f
+git branch --set-upstream-to $remote/$branch
