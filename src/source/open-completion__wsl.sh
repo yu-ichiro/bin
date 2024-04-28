@@ -1,9 +1,9 @@
 #!/usr/bin/env sh
 # define completion for `open` and `xdg-open`
-function _open_completion {
+function _open {
   _files
   return 1;
 }
 
-compdef _open_completion open
-compdef _open_completion xdg-open
+mybin-event hook completion compdef _open open
+mybin-event hook completion compdef _open xdg-open
