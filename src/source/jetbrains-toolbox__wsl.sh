@@ -3,7 +3,7 @@
 
 toolbox_scripts_path=$(echo $PATH | tr ':' '\n' | grep -E 'JetBrains/Toolbox/scripts')
 if [ "$MYBIN_PATH" != "" -a "$toolbox_scripts_path" != "" ]; then
-    cmds=($(ls $toolbox_scripts_path | sed -E 's/\.cmd//'))
+    cmds=($(ls $toolbox_scripts_path | grep -E '\.cmd' | sed -E 's/\.cmd//'))
     for cmd in "$cmds[@]"; do
         cat << EOF > $MYBIN_PATH/bin/$cmd && chmod +x $MYBIN_PATH/bin/$cmd
 #!/usr/bin/env bash
