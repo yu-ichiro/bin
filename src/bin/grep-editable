@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+xargs grep -l "$@" | while read file; do
+    grep --line-number --context 2 --no-group-separator --color=always "$@" $file | prepend "$file:"
+done | fzf --reverse --ansi | pyliner 're.sub(r"(.+):(\d+).*", r"+\2 \1", line)'
