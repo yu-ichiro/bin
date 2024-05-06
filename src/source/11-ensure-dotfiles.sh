@@ -26,7 +26,7 @@ _install_yadm() {
 _ensure_dotfiles() {
     case $VIRTUAL_HOME in
 	$Z4H*)
-	    if [ -d "$VIRTUAL_HOME/.git" ]; then
+	    if [ ! -d "$VIRTUAL_HOME/.git" ]; then
 		(
 		    cd $VIRTUAL_HOME
 		    echo "overlaying yadm at $VIRTUAL_HOME"
