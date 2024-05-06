@@ -3,12 +3,17 @@
 lower='tr [A-Z] [a-z]'
 
 arch=$(uname -m | $lower)
+arch_like="unknown"
 kernel=$(uname -s | $lower)
 _version=$(uname -rv | $lower)
 os="unknown"
 like="unknown"
 distro="unknown"
 shell=$(basename $SHELL | $lower)
+
+case $arch in
+    *x86_64*|*amd64*|*x64*) arch_like=x64;;
+esac
 
 case $kernel in
     *darwin*) os="macos";;
@@ -28,4 +33,4 @@ case $kernel in
         esac
 esac
 
-echo ${arch}:${kernel}:${os}:${like}:${distro}:${shell}
+echo ${arch}:${arch_like}:${kernel}:${os}:${like}:${distro}:${shell}
