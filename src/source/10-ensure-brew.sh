@@ -14,7 +14,7 @@ _ensure_brew() {
 	echo "Installing brew..."
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	echo "Restarting shell..."
-	exec $SHELL -i
+	reload
 }    
 
 zshrc_flag_check $ZSHRC_MODE $ZSHRC_MODE_NO_BREW || command_exists brew || _ensure_brew

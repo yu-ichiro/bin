@@ -32,7 +32,7 @@ _ensure_dotfiles() {
 		    echo "overlaying yadm at $VIRTUAL_HOME"
 		    git overlay $_dotfiles_repo -b $_dotfiles_branch
 		)
-		exec $SHELL -i
+		reload
 	    fi
 	    echo "cd \$VIRTUAL_HOME; git pull" | defer
 	    ;;
@@ -49,7 +49,7 @@ _ensure_dotfiles() {
 	    fi
 	    if [ ! -d "$XDG_DATA_HOME/yadm/repo.git" ]; then
 		yadm clone $_dotfiles_repo -b $_dotfiles_branch
-		exec $SHELL -i
+		reload
 	    fi
 	    echo "yadm pull" | defer
 	    ;;

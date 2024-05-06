@@ -11,7 +11,7 @@ function _ensure_rustup() {
 	echo "Installing rustup..."
 	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --no-modify-path
 	echo "Restarting shell..."
-	exec $SHELL -i
+	reload
 }    
 
 zshrc_flag_check $ZSHRC_MODE $ZSHRC_MODE_DEVELOP && ! command_exists rustup && _ensure_rustup
