@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# create a temp html from stdin and open it
+
+html=$(mktemp /tmp/XXXXXX.html)
+cat - > $html
+open $html && rm $html
+    
