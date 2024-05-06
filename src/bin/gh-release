@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+owner_repo=$1
+if [ -z "$owner_repo" ]; then
+    echo "not enough arguments: [owner/repo] is required" >&2
+    exit 1
+fi
+tag=$2
+
+if command_exists gh; then
+    gh release -R $owner_repo view $tag --json assets -q '.assets.[].url'
+else
+    if [ -n "$tag" ]; then
+	suffix="/tags/$tag"
+    else
+	suffix="/latest"
+    fi
+    content="$(curl -sL --fail-with-body https://api.github.com/repos/$owner_repo/releases$suffix)"
+    exit_code=$?
+    [ "$exit_code" != "0" ] && echo "$content" >&2 && exit $exit_code
+    echo "$content" | pyliner -h 'import json' -i '[stdout.write(f"{asset["browser_download_url"]}\n") for asset in json.loads(stdin.read())["assets"]]'
+fi
