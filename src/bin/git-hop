@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# https://stackoverflow.com/a/45060070
+
+git rev-parse --verify "$*" && \
+    git checkout --detach && \
+    git reset --soft "$*" && \
+    git checkout "$*"
