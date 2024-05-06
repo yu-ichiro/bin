@@ -22,8 +22,15 @@ while [ -n "$1" ]; do
     esac
 done
 
-git init
-git remote add $remote "${args[@]}"
-git fetch --all
-git checkout $branch -f
-git branch --set-upstream-to $remote/$branch
+created=false
+
+function abort() {
+    $created && rm -rf .git
+    exit $1
+}
+
+git -c init.defaultBranch=_ init || abort $?
+created=true
+git remote add $remote "${args[@]}" || abort $?
+git fetch --all || abort $?
+git checkout $branch -f || abort $?
