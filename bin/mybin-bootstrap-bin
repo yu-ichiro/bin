@@ -21,7 +21,7 @@ fi
 cd $MYBIN_PATH
 platform=$(bin/mybin-platform)
 
-files=$(find src/bin -type f,l | grep -v .gitkeep | sort)
+files=$(find src/bin -type f,l -executable | sort)
 filtered=""
 
 mark="__"
@@ -43,6 +43,6 @@ if [ ! -z "$links" ]; then
     rm -rf $links
 fi
 
-for file in $files; do
+for file in $filtered; do
     ln -sf $(pwd)/$file bin/$(basename $file | sed -E 's/__.+//')
 done
