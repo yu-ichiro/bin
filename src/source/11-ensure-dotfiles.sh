@@ -31,7 +31,8 @@ _ensure_dotfiles() {
 		    cd $VIRTUAL_HOME
 		    echo "overlaying yadm at $VIRTUAL_HOME"
 		    git overlay $_dotfiles_repo -b $_dotfiles_branch
-		)
+		) || return $?
+		echo "reloading shell..."
 		reload
 	    fi
 	    echo "cd \$VIRTUAL_HOME; git pull" | defer
@@ -48,7 +49,8 @@ _ensure_dotfiles() {
 		_install_yadm || return $?
 	    fi
 	    if [ ! -d "$XDG_DATA_HOME/yadm/repo.git" ]; then
-		yadm clone $_dotfiles_repo -b $_dotfiles_branch
+		yadm clone $_dotfiles_repo -b $_dotfiles_branch || return $?
+		echo "reloading shell..."
 		reload
 	    fi
 	    echo "yadm pull" | defer
