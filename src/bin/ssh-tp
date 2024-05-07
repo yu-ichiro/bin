@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# teleport current ZDOTDIR to /tmp/ssh-tp/zdotdir of ssh host and exec zsh
+
+shell=$(mybin-platform --shell)
+ssh_connection_command=(command ssh)
+ssh_options=()
+ssh_args=()
+
+conn_config=true
+args_reset=false
+
+while [ -n "$1" ]; do
+    case "$1" in
+	--)
+	    conn_config=false	   
+	    ;;
+	*)
+	    if $conn_config; then
+		ssh_connection_command+=("$1")
+	    else
+		$args_reset || unset -v ssh_args
+		args_reset=true
+		ssh_args+=("$1")
+	    fi
+	    ;;
+    esac
+    shift
+done
+
+cache_dir='${XDG_CACHE_HOME:-$HOME/.cach}/ssh-tp'
+
+zsh_prepare() {
+    zdotdir_target=$cache_dir/zsh
+    zdotdir_tar=$(mktemp /tmp/ssh-tp-$$-XXXXXX.tar.gz)
+
+    {
+	cd $ZDOTDIR
+	zdotdir_files=($(command find . -maxdepth 1 | grep -v '.zwc' | grep -E '(\.zshrc|\.zshenv|\.p10k.*.zsh)'))
+	tar czf $zdotdir_tar "${zdotdir_files[@]}"
+	# transfer files
+	remote_tar=$(basename $zdotdir_tar)
+	cat $zdotdir_tar | "${ssh_connection_command[@]}" sh -c "cat > $remote_tar"
+	cat <<EOF | "${ssh_connection_command[@]}" sh
+mkdir -p $zdotdir_target
+mv $remote_tar $zdotdir_target/$remote_tar
+cd $zdotdir_target
+tar -x --overwrite -zf $zdotdir_target/$remote_tar
+rm $remote_tar
+EOF
+    } || result=$?
+    ssh_options+=(-t -o "RemoteCommand=ZDOTDIR=$zdotdir_target exec $shell")
+    rm $zdotdir_tar
+    return $result
+}
+
+zsh_prepare || exit $?
+"${ssh_connection_command[@]}" "${ssh_options[@]}" "${ssh_args[@]}"
