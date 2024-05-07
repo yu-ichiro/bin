@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# expand isolated $VIRTUAL_HOME to $HOME
+
+function _expand_home() {
+    env_zsh="$ZDOTDIR/.env.zsh"
+    source_line='export VIRTUAL_HOME=$HOME'
+    [ -e "$env_zsh" ] && [ "$(cat $env_zsh | grep -E '$souce_line')" != "" ] && return
+    echo $souce_line >> $env_zsh
+}
+
+function _overwrite_zshenv() {
+    echo "ZDOTDIR=$ZDOTDIR exec zsh -i" > $HOME/.zshenv
+}
+
+_expand_home
+_overwrite_zshenv
