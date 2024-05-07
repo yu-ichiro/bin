@@ -11,6 +11,7 @@ ACTION:
 	hook [event] [command]... -- hook command execution on a event
 	dump [event]              -- dump file loaded for event
 	trigger [event]           -- trigger event and removes it
+	abort			  -- abort all events
 EOF
 	)
 
@@ -35,7 +36,7 @@ EOF
     fi
     if [ -n "${args[1]}" ]; then
         event="${args[1]}"; args=("${args[@]:1}")
-    elif [ "$action" != "list" ]; then
+    elif ! [ "$action" = "list" -o "$action" = "abort" ]; then
 	echo "error: not enough arguments"
 	echo $help
 	return -1
@@ -48,6 +49,9 @@ EOF
     case "$action" in
 	list)
 	    ls -1 $EVENT_HOME
+	    ;;
+	abort)
+	    rm -rf $EVENT_HOME
 	    ;;
 	init)
 	    if [ -e "$event_file" ]; then
