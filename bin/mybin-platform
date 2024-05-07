@@ -2,6 +2,84 @@
 
 lower='tr [A-Z] [a-z]'
 
+__all=true
+_options=(a A k o d D s)
+_a=false
+_A=false
+_k=false
+_o=false
+_d=false
+_D=false
+_s=false
+
+_set_options() {
+    value=$1
+    shift
+    for option in ${_options[@]}; do
+	for arg in $@; do
+	    if [ -n "$(echo $arg | grep $option)" ]; then
+		eval _$option=\"$value\"
+	    fi
+	done
+    done
+}
+
+_help_exit() {
+    cat <<EOF
+mybin-platfrom [-OPTIONS]
+    --all             -- [default] show everything
+    -A, --arch-like   -- fuzzy architecture
+    -a, --arch        -- architecture
+    -k, --kernel      -- kernel
+    -o, --os          -- os
+    -D, --distro-like -- fuzzy distro
+    -d, --distro      -- distro
+    -s, --shell       -- shell
+
+    -h, --help        -- show help and exit
+EOF
+    exit -1
+}
+
+while [ -n "$1" ]; do
+    __all=false
+    case "$1" in
+	--all)
+	    __all=true
+	    _set_options false aAkodDs
+	    ;;
+	--arch)
+	    _a=true
+	    ;;
+	--arch-like)
+	    _A=true
+	    ;;
+	--kernel)
+	    _k=true
+	    ;;
+	--os)
+	    _o=true
+	    ;;
+	--distro)
+	    _d=true
+	    ;;
+	--distro-like)
+	    _D=true
+	    ;;
+	--shell)
+	    _s=true
+	    ;;
+	-h|--help)
+	    _help_exit
+	    ;;
+	*)
+	    _set_options true $1
+	    ;;
+    esac
+    shift
+done
+	    
+
 arch=$(uname -m | $lower)
 arch_like="unknown"
 kernel=$(uname -s | $lower)
@@ -33,4 +111,16 @@ case $kernel in
         esac
 esac
 
-echo ${arch}:${arch_like}:${kernel}:${os}:${like}:${distro}:${shell}
+if $__all; then
+    echo ${arch_like}:${arch}:${kernel}:${os}:${like}:${distro}:${shell}
+else
+    result=""
+    $_A && result=${result}:${arch_like}
+    $_a && result=${result}:${arch}
+    $_k && result=${result}:${kernel}
+    $_o && result=${result}:${os}
+    $_D && result=${result}:${like}
+    $_d && result=${result}:${distro}
+    $_s && result=${result}:${shell}
+    echo ${result#:}
+fi
