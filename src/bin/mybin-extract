@@ -9,7 +9,7 @@ function _expand_home() {
 }
 
 function _overwrite_zshenv() {
-    echo "ZDOTDIR=$ZDOTDIR exec zsh -i" > $HOME/.zshenv
+    echo "ZDOTDIR=$ZDOTDIR exec zsh" > $HOME/.zshenv
 }
 
 _expand_home
