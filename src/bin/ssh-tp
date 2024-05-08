@@ -27,10 +27,10 @@ while [ -n "$1" ]; do
     shift
 done
 
-cache_dir='${XDG_CACHE_HOME:-$HOME/.cach}/ssh-tp'
+cache_dir='${XDG_CACHE_HOME:-$HOME/.cache}/ssh-tp'
+zdotdir_target=$cache_dir/zsh
 
 zsh_prepare() {
-    zdotdir_target=$cache_dir/zsh
     zdotdir_tar=$(mktemp /tmp/ssh-tp-$$-XXXXXX.tar.gz)
 
     {
@@ -48,10 +48,29 @@ tar -x --overwrite -zf $zdotdir_target/$remote_tar
 rm $remote_tar
 EOF
     } || result=$?
-    ssh_options+=(-t -o "RemoteCommand=ZDOTDIR=$zdotdir_target exec $shell")
+    if [ "${#ssh_args[@]}" -eq 0 ]; then
+	ssh_options+=(-t -o "RemoteCommand=ZDOTDIR=$zdotdir_target exec $shell")
+    else
+	{
+	    cat <<EOF | "${ssh_connection_command[@]}" sh
+[ -e ~/.zshenv ] && mv ~/.zshenv ~/.zshenv.orig.$$
+cat /dev/null > ~/.zshenv
+echo "export ZDOTDIR=$zdotdir_target" >> ~/.zshenv
+echo "source \\\$ZDOTDIR/.zshenv" >> ~/.zshenv
+EOF
+	} || result=$?
+    fi
     rm $zdotdir_tar
     return $result
 }
 
+zsh_cleanup() {
+    cat <<EOF | "${ssh_connection_command[@]}" sh
+rm -rf ~/.zshenv
+[ -e ~/.zshenv.orig.$$ ] && mv ~/.zshenv.orig.$$ ~/.zshenv
+EOF
+}
+
 zsh_prepare || exit $?
 "${ssh_connection_command[@]}" "${ssh_options[@]}" "${ssh_args[@]}"
+zsh_cleanup || exit $?

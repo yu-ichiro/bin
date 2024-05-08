@@ -9,7 +9,9 @@ function _expand_home() {
 }
 
 function _overwrite_zshenv() {
-    echo "ZDOTDIR=$ZDOTDIR exec zsh" > $HOME/.zshenv
+    cat /dev/null > $HOME/.zshenv
+    echo "ZDOTDIR=$ZDOTDIR" >> $HOME/.zshenv
+    echo '[ "$(LANG=C tty | grep -E '"'"'^[^/]'"'"')" ] && exec zsh || source $ZDOTDIR/.zshenv' >> $HOME/.zshenv
 }
 
 _expand_home
