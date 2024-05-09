@@ -4,14 +4,14 @@
 function _expand_home() {
     env_zsh="$ZDOTDIR/.env.zsh"
     source_line='export VIRTUAL_HOME=$HOME'
-    [ -e "$env_zsh" ] && [ "$(cat $env_zsh | grep -E '$souce_line')" != "" ] && return
-    echo $souce_line >> $env_zsh
+    [ -e "$env_zsh" ] && [ "$(cat $env_zsh | grep "$source_line")" != "" ] && return
+    echo $source_line >> $env_zsh
 }
 
 function _overwrite_zshenv() {
     cat /dev/null > $HOME/.zshenv
     echo "export ZDOTDIR=$ZDOTDIR" >> $HOME/.zshenv
-    echo '[ "$(LANG=C tty | grep -E '"'"'^[^/]'"'"')" ] && exec zsh || source $ZDOTDIR/.zshenv' >> $HOME/.zshenv
+    echo '[ "$(LANG=C tty | grep -E '"'"'^[^/]'"'"')" = "" ] && exec zsh || source $ZDOTDIR/.zshenv' >> $HOME/.zshenv
 }
 
 _expand_home
