@@ -24,20 +24,8 @@ _install_yadm() {
 }
 
 _ensure_dotfiles() {
-    case $VIRTUAL_HOME in
-	$Z4H*)
-	    if [ ! -d "$VIRTUAL_HOME/.git" ]; then
-		(
-		    cd $VIRTUAL_HOME
-		    echo "overlaying yadm at $VIRTUAL_HOME"
-		    git overlay $_dotfiles_repo -b $_dotfiles_branch
-		) || return $?
-		echo "reloading shell..."
-		reload
-	    fi
-	    echo "cd \$VIRTUAL_HOME; git pull" | defer
-	    ;;
-	*)
+    case :$VIRTUAL_HOME: in
+	:$HOME:)
 	    if ! command_exists yadm; then
 		echo -n "yadm not found. install? (Y/n):"
 		read answer
@@ -53,7 +41,21 @@ _ensure_dotfiles() {
 		echo "reloading shell..."
 		reload
 	    fi
-	    echo "yadm pull" | defer
+	    echo "updating yadm..."
+	    yadm pull
+	    ;;
+	*)
+	    if [ ! -d "$VIRTUAL_HOME/.git" ]; then
+		(
+		    cd $VIRTUAL_HOME
+		    echo "overlaying yadm at $VIRTUAL_HOME"
+		    git overlay $_dotfiles_repo -b $_dotfiles_branch
+		) || return $?
+		echo "reloading shell..."
+		reload
+	    fi
+	    echo "updating yadm..."
+	    ( cd $VIRTUAL_HOME; git pull )
 	    ;;
     esac
 }
