@@ -27,50 +27,53 @@ while [ -n "$1" ]; do
     shift
 done
 
+[ "${#ssh_args[@]}" -eq 0 ] && interactive=true || interactive=false
 cache_dir='${XDG_CACHE_HOME:-$HOME/.cache}/ssh-tp'
 zdotdir_target=$cache_dir/zsh
+mybin_target=$cache_dir/mybin
 
 zsh_prepare() {
-    zdotdir_tar=$(mktemp /tmp/ssh-tp-$$-XXXXXX.tar.gz)
+    zdotdir_tar=$(mktemp /tmp/ssh-tp-zsh-$$-XXXXXX.tar.gz)
+    mybin_tar=$(mktemp /tmp/ssh-tp-mybin-$$-XXXXXX.tar.gz)
 
     {
 	cd $ZDOTDIR
 	zdotdir_files=($(command find . -maxdepth 1 | grep -v '.zwc' | grep -E '(\.zshrc|\.zshenv|\.p10k.*.zsh)'))
 	tar czf $zdotdir_tar "${zdotdir_files[@]}"
+
+	cd $MYBIN_PATH
+	tar czf $mybin_tar $(command find .)
 	# transfer files
-	remote_tar=$(basename $zdotdir_tar)
-	cat $zdotdir_tar | "${ssh_connection_command[@]}" sh -c "cat > $remote_tar"
+	remote_zdotdir_tar=$(basename $zdotdir_tar)
+	remote_mybin_tar=$(basename $mybin_tar)
+	cat $zdotdir_tar | "${ssh_connection_command[@]}" sh -c "cat > $remote_zdotdir_tar"
+	cat $mybin_tar | "${ssh_connection_command[@]}" sh -c "cat > $remote_mybin_tar"
 	cat <<EOF | "${ssh_connection_command[@]}" sh
 mkdir -p $zdotdir_target
-mv $remote_tar $zdotdir_target/$remote_tar
+mkdir -p $mybin_target
+mv $remote_zdotdir_tar $zdotdir_target/$remote_zdotdir_tar
+mv $remote_mybin_tar $mybin_target/$remote_mybin_tar
+
 cd $zdotdir_target
-tar -x --overwrite -zf $zdotdir_target/$remote_tar
-rm $remote_tar
-EOF
-    } || result=$?
-    if [ "${#ssh_args[@]}" -eq 0 ]; then
-	ssh_options+=(-t -o "RemoteCommand=ZDOTDIR=$zdotdir_target exec $shell")
-    else
-	{
-	    cat <<EOF | "${ssh_connection_command[@]}" sh
+tar xzf $zdotdir_target/$remote_zdotdir_tar
+rm $remote_zdotdir_tar
+
+cd $mybin_target
+tar xzf $mybin_target/$remote_mybin_tar
+rm $remote_mybin_tar
+
 [ -e ~/.zshenv ] && mv ~/.zshenv ~/.zshenv.orig.$$
+
 cat /dev/null > ~/.zshenv
 echo "export ZDOTDIR=$zdotdir_target" >> ~/.zshenv
-echo "source \\\$ZDOTDIR/.zshenv" >> ~/.zshenv
+echo "export MYBIN_PATH=$mybin_target" >> ~/.zshenv
+echo "[ -e ~/.zshenv.orig.$$ ] && mv ~/.zshenv.orig.$$ ~/.zshenv || rm ~/.zshenv" >> ~/.zshenv
+echo '[ "\$(LANG=C tty | grep -E '"'"'^[^/]'"'"')" = "" ] && exec zsh || source \$ZDOTDIR/.zshenv' >> ~/.zshenv
 EOF
-	} || result=$?
-    fi
+    } || result=$?
     rm $zdotdir_tar
     return $result
 }
 
-zsh_cleanup() {
-    cat <<EOF | "${ssh_connection_command[@]}" sh
-rm -rf ~/.zshenv
-[ -e ~/.zshenv.orig.$$ ] && mv ~/.zshenv.orig.$$ ~/.zshenv
-EOF
-}
-
 zsh_prepare || exit $?
 "${ssh_connection_command[@]}" "${ssh_options[@]}" "${ssh_args[@]}"
-zsh_cleanup || exit $?
