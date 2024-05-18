@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+from typing import Self, NamedTuple
+import sys
+import os
+import math
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from dateutil.parser import parse as parse_date
+
+
+class Payment(NamedTuple):
+    date: datetime
+    title: str
+    amount: int
+
+    def replaced(self, date: datetime = ..., title: str = ..., amount: int = ...) -> Self:
+        return type(self)(
+            date if date is not ... else self.date,
+            title if title is not ... else self.title,
+            amount if amount is not ... else self.amount,
+        )
+
+    def __str__(self):
+        date = self.date.strftime("%Y/%m/%d")
+        return f"{date}\t{self.title}\t{self.amount}"
+
+
+def deprecate_payment(n: int, payment: Payment) -> list[Payment]:
+    if n < 2:
+        return [payment.replaced(title=f"{payment.title} (1/1)")]
+    depr = math.floor(payment.amount/n)
+    initial = payment.amount - depr*(n-1)
+    return [
+        payment.replaced(title=f"{payment.title} (1/{n})", amount=initial),
+        *(Payment(
+            payment.date + relativedelta(months=i),
+            f"{payment.title} ({i+1}/{n})",
+            depr,
+        ) for i in range(1, n)),
+    ]
+
+
+def main(*argv, **envs) -> int:
+    try:
+        n = int(argv[1])
+        line = "\t".join(argv[2:]) if len(argv) > 2 else sys.stdin.read().strip()
+        date, title, amount = line.split("\t")
+        date = parse_date(date, fuzzy=True)
+        amount = int(amount)
+        payments = deprecate_payment(n, Payment(date, title, amount))
+        for payment in payments:
+            print(payment)
+        return 0
+    except Exception as e:
+        print(e, file=sys.stderr)
+        print("Usage: deprecate-payment n [date title amount]", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(*sys.argv, **os.environ))
