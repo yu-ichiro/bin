@@ -37,7 +37,7 @@ for file in $files; do
 done
 
 skip=$(cat bin/.gitignore | grep -E '^!' | sed -E 's/^!/bin\//')
-links=$(find bin/ -type f,l | grep -v -E '^('"$(echo -n "$skip" | tr '\n' '|')"')')
+links=$(find bin/ '(' -type f -o -type l ')' | grep -v -E '^('"$(echo -n "$skip" | tr '\n' '|')"')')
 
 if [ ! -z "$links" ]; then
     rm -rf $links
