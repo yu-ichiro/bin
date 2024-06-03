@@ -21,7 +21,7 @@ cd $MYBIN_PATH
 
 platform=$(bin/mybin-platform)
 
-files=$(find src/source -type f,l | grep -E "\.sh$" | sort) 
+files=$(find src/source -type f -o -type l | grep -E "\.sh$" | sort) 
 filtered=""
 
 mark="__"

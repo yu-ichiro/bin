@@ -21,7 +21,7 @@ fi
 cd $MYBIN_PATH
 platform=$(bin/mybin-platform)
 
-files=$(find src/bin -type f,l -executable | sort)
+files=$(find src/bin '(' -type f -o -type l ')' -a -perm -111  | sort)
 filtered=""
 
 mark="__"
