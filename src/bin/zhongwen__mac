@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+voice="Meijia"
+input=("$@")
+
+if [ ${#input[@]} -lt 1 ]; then
+    input+=("$(cat -)")
+fi
+
+echo "${input[@]}"
+(nohup >/dev/null 2>&1 say -v $voice "${input[@]}" &)
+python -m pypinyin "${input[@]}"
+python -m pypinyin -s BOPOMOFO "${input[@]}"
+dpl "${input[@]}"
